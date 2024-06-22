@@ -15,11 +15,8 @@ public class User implements UserInterface {
     private List<String> newsFeed;
 
     /**
-     * Constructor for User.
-     * Generates a unique ID and sets the user's name.
-     *
-     * @param name the name of the user
-     */
+     * Generates a unique ID and sets the user's name. 
+     * */
     public User(String name) {
         this.id = UUID.randomUUID().toString();
         this.name = name;
@@ -37,11 +34,7 @@ public class User implements UserInterface {
         visitor.visit(this);
     }
 
-    /**
-     * Method to follow another user.
-     *
-     * @param user the user to follow
-     */
+    // Method for following users
     public void follow(User user) {
         if (!followings.contains(user)) {
             followings.add(user);
@@ -49,10 +42,8 @@ public class User implements UserInterface {
         }
     }
 
-    /**
-     * Adds a follower to the user.
-     *
-     * @param user the user who is following
+    /** 
+     * Adds a follower to the user. 
      */
     private void addFollower(User user) {
         if (!followers.contains(user)) {
@@ -60,10 +51,8 @@ public class User implements UserInterface {
         }
     }
 
-    /**
-     * Posts a new tweet.
-     *
-     * @param message the tweet message
+    /** 
+     * Posts a new tweet. 
      */
     public void postTweet(String message) {
         newsFeed.add(message);
@@ -72,8 +61,6 @@ public class User implements UserInterface {
 
     /**
      * Notifies followers about a new tweet.
-     *
-     * @param message the tweet message
      */
     private void notifyFollowers(String message) {
         for (User follower : followers) {
@@ -83,30 +70,27 @@ public class User implements UserInterface {
 
     /**
      * Updates the news feed with a new tweet.
-     *
-     * @param tweet the new tweet message
-     */
+    */
     private void update(String tweet) {
         newsFeed.add(tweet);
     }
 
     /**
      * Gets the news feed of the user.
-     *
-     * @return the news feed list
      */
     public List<String> getTweets() {
         return newsFeed;
     }
 
+    /**
+     *  Gets Id for users
+     */
     public String getId() {
         return id;
     }
 
     /**
      * Gets the list of users this user is following.
-     *
-     * @return the list of users this user is following
      */
     public List<User> getFollowings() {
         return followings;

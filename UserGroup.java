@@ -13,10 +13,7 @@ public class UserGroup implements UserInterface {
     private List<UserInterface> members;
 
     /**
-     * Constructor for UserGroup.
      * Generates a unique ID and sets the group's name.
-     *
-     * @param name the name of the group
      */
     public UserGroup(String name) {
         this.id = UUID.randomUUID().toString();
@@ -29,6 +26,7 @@ public class UserGroup implements UserInterface {
         return name;
     }
 
+    @Override
     public void accept(AnalysisVisitor visitor) {
         visitor.visit(this);
     }
@@ -43,5 +41,9 @@ public class UserGroup implements UserInterface {
 
     public List<UserInterface> getMembers() {
         return members;
+    }
+
+    public String getId() {
+        return id;
     }
 }

@@ -67,7 +67,8 @@ public class AnalysisVisitor {
         return ((float) positiveCount / newsFeedCount) * 100;
     }
 
-    /** Adds the number of messages for a user to the count, and gets the number of positive messages
+    /** 
+     * Adds the number of messages for a user to the count, and gets the number of positive messages
      * within those.
      */
     private void visitNewsFeed(List<String> newsFeed) {

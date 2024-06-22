@@ -1,5 +1,4 @@
 import javax.swing.*;
-import javax.swing.tree.DefaultMutableTreeNode;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -7,39 +6,48 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
 /**
- * The Admin Panel is the main part of the UI and frontend, as well as the connection for using the backend classes for users,
- * groups, and the visitor. The admin panel is implemented with a Singleton Pattern, since it only needs to be instantiated once in
- * the program. Admin Panel includes three more panels that include the User tree, buttons for adding users, groups and opening a user view,
- * as well as buttons for showing the analysis.
+ * The AdminControlPanel class is the main part of the UI and frontend, as well as the connection for using the backend classes
+ * for users, groups, and the visitor. The admin panel is implemented with a Singleton Pattern, since it only needs to be 
+ * instantiated once in the program. AdminControlPanel includes three more panels that include the User tree, buttons for adding
+ * users, groups and opening a user view, as well as buttons for showing the analysis.
  */
 public class AdminControlPanel extends JFrame {
-    private static AdminControlPanel instance;
+    private static AdminControlPanel instance; // Singleton instance
 
-    private JTree userTree;
-    private UserTreeModel treeModel;
-    private UserTreeNode rootNode;
+    private JTree userTree; // Tree to display users and groups
+    private UserTreeModel treeModel; // Model for the user tree
+    private UserTreeNode rootNode; // Root node of the user tree
 
     private JTextField userIdField;
-    private JTextField groupIdField;
+    private JTextField groupIdField; 
 
+    /**
+     * Private constructor to implement Singleton pattern.
+     */
     private AdminControlPanel() {
         setTitle("Admin Control Panel");
         setSize(600, 400);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
 
-        // Initialize components
         initializeComponents();
     }
 
+    /**
+     * Gets the single instance of AdminControlPanel.
+     *
+     * @return single instance of AdminControlPanel
+     */
     public static AdminControlPanel getInstance() {
         if (instance == null) {
             instance = new AdminControlPanel();
         }
         return instance;
     }
-
+    
+    //Initializes UI components.
     private void initializeComponents() {
+        // Initialize root group and tree model
         UserGroup rootGroup = new UserGroup("Root");
         rootNode = new UserTreeNode(rootGroup);
         treeModel = new UserTreeModel(rootNode);
@@ -57,6 +65,7 @@ public class AdminControlPanel extends JFrame {
 
         JPanel controlPanel = new JPanel(new GridLayout(3, 1));
 
+        // Panel for adding users
         JPanel userPanel = new JPanel(new FlowLayout());
         userIdField = new JTextField(10);
         JButton addUserButton = new JButton("Add User");
@@ -70,6 +79,7 @@ public class AdminControlPanel extends JFrame {
         userPanel.add(userIdField);
         userPanel.add(addUserButton);
 
+        // Panel for adding groups
         JPanel groupPanel = new JPanel(new FlowLayout());
         groupIdField = new JTextField(10);
         JButton addGroupButton = new JButton("Add Group");
@@ -83,6 +93,7 @@ public class AdminControlPanel extends JFrame {
         groupPanel.add(groupIdField);
         groupPanel.add(addGroupButton);
 
+        // Panel for showing analysis
         JPanel analysisPanel = new JPanel(new FlowLayout());
         JButton userCountButton = new JButton("Total Users");
         userCountButton.addActionListener(new ActionListener() {
@@ -113,19 +124,25 @@ public class AdminControlPanel extends JFrame {
             }
         });
 
+        // Add buttons to analysis panel
         analysisPanel.add(userCountButton);
         analysisPanel.add(groupCountButton);
         analysisPanel.add(tweetCountButton);
         analysisPanel.add(positivePercentageButton);
 
+        // Add sub-panels to control panel
         controlPanel.add(userPanel);
         controlPanel.add(groupPanel);
         controlPanel.add(analysisPanel);
 
+        // Add main components to the frame
         add(treeView, BorderLayout.CENTER);
         add(controlPanel, BorderLayout.SOUTH);
     }
 
+    /**
+     * Adds a new user to the selected group or root if no group is selected.
+     */
     private void addUser() {
         String userName = userIdField.getText();
         if (!userName.isEmpty()) {
@@ -154,6 +171,9 @@ public class AdminControlPanel extends JFrame {
         }
     }
 
+    /**
+     * Adds a new group to the selected group or root if no group is selected.
+     */
     private void addGroup() {
         String groupName = groupIdField.getText();
         if (!groupName.isEmpty()) {
@@ -182,6 +202,9 @@ public class AdminControlPanel extends JFrame {
         }
     }
 
+    /**
+     * Opens the user view for the selected user.
+     */
     private void openUserView() {
         UserTreeNode selectedNode = (UserTreeNode) userTree.getLastSelectedPathComponent();
         if (selectedNode != null && selectedNode.getUserObject() instanceof User) {
@@ -190,6 +213,9 @@ public class AdminControlPanel extends JFrame {
         }
     }
 
+    /**
+     * Shows the total number of users in the system.
+     */
     private void showTotalUsers() {
         AnalysisVisitor visitor = new AnalysisVisitor();
         UserGroup rootGroup = (UserGroup) rootNode.getUserObject();
@@ -197,6 +223,9 @@ public class AdminControlPanel extends JFrame {
         JOptionPane.showMessageDialog(this, "Total Users: " + visitor.getUserCount(), "Info", JOptionPane.INFORMATION_MESSAGE);
     }
 
+    /**
+     * Shows the total number of groups in the system.
+     */
     private void showTotalGroups() {
         AnalysisVisitor visitor = new AnalysisVisitor();
         UserGroup rootGroup = (UserGroup) rootNode.getUserObject();
@@ -204,6 +233,9 @@ public class AdminControlPanel extends JFrame {
         JOptionPane.showMessageDialog(this, "Total Groups: " + visitor.getUserGroupCount(), "Info", JOptionPane.INFORMATION_MESSAGE);
     }
 
+    /**
+     * Shows the total number of tweets in the system.
+     */
     private void showTotalTweets() {
         AnalysisVisitor visitor = new AnalysisVisitor();
         UserGroup rootGroup = (UserGroup) rootNode.getUserObject();
@@ -211,6 +243,9 @@ public class AdminControlPanel extends JFrame {
         JOptionPane.showMessageDialog(this, "Total Tweets: " + visitor.getNewsFeedCount(), "Info", JOptionPane.INFORMATION_MESSAGE);
     }
 
+    /**
+     * Shows the percentage of positive tweets in the system.
+     */
     private void showPositiveTweetPercentage() {
         AnalysisVisitor visitor = new AnalysisVisitor();
         UserGroup rootGroup = (UserGroup) rootNode.getUserObject();

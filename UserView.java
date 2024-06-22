@@ -36,14 +36,6 @@ public class UserView extends JFrame {
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setVisible(true);
 
-        // Add a window listener to update tweets count when the window is closed
-        addWindowListener(new WindowAdapter() {
-            @Override
-            public void windowClosing(WindowEvent e) {
-                // AdminControlPanel.getInstance().updateTotalTweets();
-            }
-        });
-
         // Schedule feed updates
         Timer timer = new Timer(1000, new ActionListener() {
             @Override
@@ -167,7 +159,8 @@ public class UserView extends JFrame {
     private void postTweet() {
         String tweet = tweetField.getText();
         if (!tweet.isEmpty()) {
-            user.postTweet(tweet);
+            String formattedTweet = "Tweet by " + user.getName() + ": " + tweet;
+            user.postTweet(formattedTweet);
             updateFeed();
             JOptionPane.showMessageDialog(this, "Tweet posted", "Success", JOptionPane.INFORMATION_MESSAGE);
         } else {
@@ -179,7 +172,7 @@ public class UserView extends JFrame {
     private void updateFeed() {
         feedModel.clear();
         for (String tweet : user.getTweets()) {
-            feedModel.addElement("Tweet by " + user.getName() + ": " + tweet);
+            feedModel.addElement(tweet);
         }
     }
 
