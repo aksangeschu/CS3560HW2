@@ -136,12 +136,16 @@ public class AdminControlPanel extends JFrame {
                 if (selectedObject instanceof UserGroup) {
                     UserGroup selectedGroup = (UserGroup) selectedObject;
                     treeModel.addUser(user, selectedGroup);
+                    UserTreeNode userNode = new UserTreeNode(user);
+                    selectedNode.add(userNode);
                     treeModel.reload(selectedNode);
                 } else {
                     JOptionPane.showMessageDialog(this, "Please select a group to add the user to.", "Error", JOptionPane.ERROR_MESSAGE);
                 }
             } else {
                 treeModel.addUser(user, (UserGroup) rootNode.getUserObject());
+                UserTreeNode userNode = new UserTreeNode(user);
+                rootNode.add(userNode);
                 treeModel.reload(rootNode);
             }
             userIdField.setText("");
@@ -160,12 +164,16 @@ public class AdminControlPanel extends JFrame {
                 if (selectedObject instanceof UserGroup) {
                     UserGroup selectedGroup = (UserGroup) selectedObject;
                     treeModel.addUserGroup(group, selectedGroup);
+                    UserTreeNode groupNode = new UserTreeNode(group);
+                    selectedNode.add(groupNode);
                     treeModel.reload(selectedNode);
                 } else {
                     JOptionPane.showMessageDialog(this, "Please select a group to add the new group to.", "Error", JOptionPane.ERROR_MESSAGE);
                 }
             } else {
                 treeModel.addUserGroup(group, (UserGroup) rootNode.getUserObject());
+                UserTreeNode groupNode = new UserTreeNode(group);
+                rootNode.add(groupNode);
                 treeModel.reload(rootNode);
             }
             groupIdField.setText("");

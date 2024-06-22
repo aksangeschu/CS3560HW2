@@ -5,7 +5,7 @@ import java.util.List;
  * admin panel. It also acts as the visitor, that recursively visits each group and user starting from the root,
  * thus being the implementation for the Visitor pattern.
  */
-public class AnalysisVisitor implements Visitor {
+public class AnalysisVisitor {
     private int userCount;
     private int userGroupCount;
     private int newsFeedCount;
@@ -50,7 +50,11 @@ public class AnalysisVisitor implements Visitor {
     public void visit(UserGroup userGroup) {
         userGroupCount++;
         for (UserInterface member : userGroup.getMembers()) {
-            member.accept(this);
+            if (member instanceof User) {
+                visit((User) member);
+            } else if (member instanceof UserGroup) {
+                visit((UserGroup) member);
+            }
         }
     }
 
@@ -66,7 +70,7 @@ public class AnalysisVisitor implements Visitor {
     /** Adds the number of messages for a user to the count, and gets the number of positive messages
      * within those.
      */
-    public void visitNewsFeed(List<String> newsFeed) {
+    private void visitNewsFeed(List<String> newsFeed) {
         newsFeedCount += newsFeed.size();
         for (String post : newsFeed) {
             for (String positiveWord : POSITIVE_WORDS) {

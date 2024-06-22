@@ -6,17 +6,14 @@ import javax.swing.tree.DefaultMutableTreeNode;
  * where this logic helps construct the tree's display.
  */
 public class UserTreeNode extends DefaultMutableTreeNode {
-    public UserTreeNode(UserInterface userInterface) {
-        super(userInterface);
-    }
-
-    @Override
-    public boolean isLeaf() {
-        return getUserObject() instanceof User;
+    public UserTreeNode(UserInterface userObject) {
+        super(userObject);
     }
 
     @Override
     public String toString() {
-        return ((UserInterface) getUserObject()).getName();
+        UserInterface userObject = (UserInterface) getUserObject();
+        return userObject.getName();
     }
 }
+

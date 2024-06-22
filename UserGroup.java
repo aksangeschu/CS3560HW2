@@ -29,8 +29,7 @@ public class UserGroup implements UserInterface {
         return name;
     }
 
-    @Override
-    public void accept(Visitor visitor) {
+    public void accept(AnalysisVisitor visitor) {
         visitor.visit(this);
     }
 

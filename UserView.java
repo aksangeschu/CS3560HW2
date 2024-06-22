@@ -2,6 +2,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 /**
  * The User View includes a frame and panel that opens from the admin panel when selecting a user.
@@ -18,6 +20,7 @@ public class UserView extends JFrame {
 
     private JTextField followUserField;
     private JTextField tweetField;
+    private JButton closeButton;
 
     public UserView(User user, UserTreeModel treeModel) {
         this.user = user;
@@ -32,7 +35,15 @@ public class UserView extends JFrame {
 
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setVisible(true);
-        
+
+        // Add a window listener to update tweets count when the window is closed
+        addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                // AdminControlPanel.getInstance().updateTotalTweets();
+            }
+        });
+
         // Schedule feed updates
         Timer timer = new Timer(1000, new ActionListener() {
             @Override
@@ -66,7 +77,7 @@ public class UserView extends JFrame {
         tweetsPanel.add(feedScrollPane, BorderLayout.CENTER);
         topPanel.add(tweetsPanel);
 
-        JPanel controlPanel = new JPanel(new GridLayout(2, 1));
+        JPanel controlPanel = new JPanel(new GridLayout(3, 1));
 
         JPanel followPanel = new JPanel(new FlowLayout());
         followUserField = new JTextField(15);
@@ -94,8 +105,17 @@ public class UserView extends JFrame {
         tweetPanel.add(tweetField);
         tweetPanel.add(tweetButton);
 
+        closeButton = new JButton("Close");
+        closeButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                dispose();
+            }
+        });
+
         controlPanel.add(followPanel);
         controlPanel.add(tweetPanel);
+        controlPanel.add(closeButton);
 
         mainPanel.add(topPanel, BorderLayout.CENTER);
         mainPanel.add(controlPanel, BorderLayout.SOUTH);
@@ -159,7 +179,7 @@ public class UserView extends JFrame {
     private void updateFeed() {
         feedModel.clear();
         for (String tweet : user.getTweets()) {
-            feedModel.addElement(tweet);
+            feedModel.addElement("Tweet by " + user.getName() + ": " + tweet);
         }
     }
 
