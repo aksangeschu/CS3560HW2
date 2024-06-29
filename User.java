@@ -13,16 +13,20 @@ public class User implements UserInterface {
     private List<User> followers;
     private List<User> followings;
     private List<String> newsFeed;
+    private long creationTime;
+    private long lastUpdateTime;
 
     /**
-     * Generates a unique ID and sets the user's name. 
-     * */
+     * Generates a unique ID and sets the user's name.
+     */
     public User(String name) {
         this.id = UUID.randomUUID().toString();
         this.name = name;
         this.followers = new ArrayList<>();
         this.followings = new ArrayList<>();
         this.newsFeed = new ArrayList<>();
+        this.creationTime = System.currentTimeMillis();
+        this.lastUpdateTime = this.creationTime;
     }
 
     @Override
@@ -34,7 +38,6 @@ public class User implements UserInterface {
         visitor.visit(this);
     }
 
-    // Method for following users
     public void follow(User user) {
         if (!followings.contains(user)) {
             followings.add(user);
@@ -42,56 +45,50 @@ public class User implements UserInterface {
         }
     }
 
-    /** 
-     * Adds a follower to the user. 
-     */
     private void addFollower(User user) {
         if (!followers.contains(user)) {
             followers.add(user);
         }
     }
 
-    /** 
-     * Posts a new tweet. 
-     */
     public void postTweet(String message) {
         newsFeed.add(message);
         notifyFollowers(message);
+        updateLastUpdateTime();
     }
 
-    /**
-     * Notifies followers about a new tweet.
-     */
     private void notifyFollowers(String message) {
         for (User follower : followers) {
             follower.update(message);
+            follower.updateLastUpdateTime();
         }
     }
 
-    /**
-     * Updates the news feed with a new tweet.
-    */
     private void update(String tweet) {
         newsFeed.add(tweet);
+        updateLastUpdateTime();
     }
 
-    /**
-     * Gets the news feed of the user.
-     */
+    private void updateLastUpdateTime() {
+        this.lastUpdateTime = System.currentTimeMillis();
+    }
+
     public List<String> getTweets() {
         return newsFeed;
     }
 
-    /**
-     *  Gets Id for users
-     */
     public String getId() {
         return id;
     }
 
-    /**
-     * Gets the list of users this user is following.
-     */
+    public long getCreationTime() {
+        return creationTime;
+    }
+
+    public long getLastUpdateTime() {
+        return lastUpdateTime;
+    }
+
     public List<User> getFollowings() {
         return followings;
     }

@@ -1,9 +1,12 @@
 import javax.swing.*;
+import javax.swing.tree.DefaultMutableTreeNode;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * The AdminControlPanel class is the main part of the UI and frontend, as well as the connection for using the backend classes
@@ -63,7 +66,7 @@ public class AdminControlPanel extends JFrame {
             }
         });
 
-        JPanel controlPanel = new JPanel(new GridLayout(3, 1));
+        JPanel controlPanel = new JPanel(new GridLayout(5, 1));
 
         // Panel for adding users
         JPanel userPanel = new JPanel(new FlowLayout());
@@ -124,25 +127,84 @@ public class AdminControlPanel extends JFrame {
             }
         });
 
+        JButton validateIDsButton = new JButton("Validate IDs");
+        validateIDsButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                validateIDs();
+            }
+        });
+
+        JButton lastUpdatedUserButton = new JButton("Last Updated User");
+        lastUpdatedUserButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                showLastUpdatedUser();
+            }
+        });
+
         // Add buttons to analysis panel
         analysisPanel.add(userCountButton);
         analysisPanel.add(groupCountButton);
         analysisPanel.add(tweetCountButton);
         analysisPanel.add(positivePercentageButton);
 
+        JPanel validationPanel = new JPanel(new FlowLayout());
+        validationPanel.add(validateIDsButton);
+        validationPanel.add(lastUpdatedUserButton);
+
         // Add sub-panels to control panel
         controlPanel.add(userPanel);
         controlPanel.add(groupPanel);
         controlPanel.add(analysisPanel);
+        controlPanel.add(validationPanel);
 
         // Add main components to the frame
         add(treeView, BorderLayout.CENTER);
         add(controlPanel, BorderLayout.SOUTH);
     }
 
-    /**
-     * Adds a new user to the selected group or root if no group is selected.
-     */
+    private void validateIDs() {
+        Set<String> ids = new HashSet<>();
+        boolean valid = validateIDs((UserTreeNode) treeModel.getRoot(), ids);
+        if (valid) {
+            JOptionPane.showMessageDialog(this, "All IDs are valid.", "Info", JOptionPane.INFORMATION_MESSAGE);
+        } else {
+            JOptionPane.showMessageDialog(this, "There are invalid IDs.", "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private boolean validateIDs(UserTreeNode node, Set<String> ids) {
+        UserInterface userObject = (UserInterface) node.getUserObject();
+        if (userObject instanceof User) {
+            User user = (User) userObject;
+            if (user.getId().contains(" ") || !ids.add(user.getId())) {
+                return false;
+            }
+        } else if (userObject instanceof UserGroup) {
+            UserGroup group = (UserGroup) userObject;
+            if (group.getId().contains(" ") || !ids.add(group.getId())) {
+                return false;
+            }
+        }
+        for (int i = 0; i < node.getChildCount(); i++) {
+            UserTreeNode childNode = (UserTreeNode) node.getChildAt(i);
+            if (!validateIDs(childNode, ids)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private void showLastUpdatedUser() {
+        AnalysisVisitor visitor = new AnalysisVisitor();
+        UserGroup rootGroup = (UserGroup) rootNode.getUserObject();
+        rootGroup.accept(visitor);
+        User lastUpdatedUser = visitor.getLastUpdatedUser();
+        String message = (lastUpdatedUser != null) ? "Last Updated User: " + lastUpdatedUser.getName() : "No updates found.";
+        JOptionPane.showMessageDialog(this, message, "Info", JOptionPane.INFORMATION_MESSAGE);
+    }
+
     private void addUser() {
         String userName = userIdField.getText();
         if (!userName.isEmpty()) {
@@ -171,9 +233,6 @@ public class AdminControlPanel extends JFrame {
         }
     }
 
-    /**
-     * Adds a new group to the selected group or root if no group is selected.
-     */
     private void addGroup() {
         String groupName = groupIdField.getText();
         if (!groupName.isEmpty()) {
@@ -202,9 +261,6 @@ public class AdminControlPanel extends JFrame {
         }
     }
 
-    /**
-     * Opens the user view for the selected user.
-     */
     private void openUserView() {
         UserTreeNode selectedNode = (UserTreeNode) userTree.getLastSelectedPathComponent();
         if (selectedNode != null && selectedNode.getUserObject() instanceof User) {
@@ -213,9 +269,6 @@ public class AdminControlPanel extends JFrame {
         }
     }
 
-    /**
-     * Shows the total number of users in the system.
-     */
     private void showTotalUsers() {
         AnalysisVisitor visitor = new AnalysisVisitor();
         UserGroup rootGroup = (UserGroup) rootNode.getUserObject();
@@ -223,9 +276,6 @@ public class AdminControlPanel extends JFrame {
         JOptionPane.showMessageDialog(this, "Total Users: " + visitor.getUserCount(), "Info", JOptionPane.INFORMATION_MESSAGE);
     }
 
-    /**
-     * Shows the total number of groups in the system.
-     */
     private void showTotalGroups() {
         AnalysisVisitor visitor = new AnalysisVisitor();
         UserGroup rootGroup = (UserGroup) rootNode.getUserObject();
@@ -233,9 +283,6 @@ public class AdminControlPanel extends JFrame {
         JOptionPane.showMessageDialog(this, "Total Groups: " + visitor.getUserGroupCount(), "Info", JOptionPane.INFORMATION_MESSAGE);
     }
 
-    /**
-     * Shows the total number of tweets in the system.
-     */
     private void showTotalTweets() {
         AnalysisVisitor visitor = new AnalysisVisitor();
         UserGroup rootGroup = (UserGroup) rootNode.getUserObject();
@@ -243,9 +290,6 @@ public class AdminControlPanel extends JFrame {
         JOptionPane.showMessageDialog(this, "Total Tweets: " + visitor.getNewsFeedCount(), "Info", JOptionPane.INFORMATION_MESSAGE);
     }
 
-    /**
-     * Shows the percentage of positive tweets in the system.
-     */
     private void showPositiveTweetPercentage() {
         AnalysisVisitor visitor = new AnalysisVisitor();
         UserGroup rootGroup = (UserGroup) rootNode.getUserObject();

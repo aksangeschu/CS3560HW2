@@ -1,4 +1,6 @@
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * The AnalysisVisitor class is an object that collects the statistical counts for the analysis features of the
@@ -10,6 +12,9 @@ public class AnalysisVisitor {
     private int userGroupCount;
     private int newsFeedCount;
     private int positiveCount;
+    private User lastUpdatedUser;
+    private long lastUpdateTime;
+    private Set<String> uniqueTweets;
 
     private final String[] POSITIVE_WORDS = {"good", "nice", "awesome", "happy", "great", "enjoy"};
 
@@ -23,61 +28,60 @@ public class AnalysisVisitor {
         userGroupCount = 0;
         newsFeedCount = 0;
         positiveCount = 0;
+        lastUpdatedUser = null;
+        lastUpdateTime = 0;
+        uniqueTweets = new HashSet<>();
     }
 
-    /** Returns User count */
     public int getUserCount() {
         return userCount;
     }
 
-    /** Returns UserGroup count */
     public int getUserGroupCount() {
         return userGroupCount;
     }
 
-    /** Returns News Feed count */
     public int getNewsFeedCount() {
-        return newsFeedCount;
+        return uniqueTweets.size();
     }
 
-    /** Adds 1 to user count when visited */
+    public User getLastUpdatedUser() {
+        return lastUpdatedUser;
+    }
+
     public void visit(User user) {
         userCount++;
         visitNewsFeed(user.getTweets());
+        if (user.getLastUpdateTime() > lastUpdateTime) {
+            lastUpdateTime = user.getLastUpdateTime();
+            lastUpdatedUser = user;
+        }
     }
 
-    /** Adds 1 to group count when visited */
     public void visit(UserGroup userGroup) {
         userGroupCount++;
         for (UserInterface member : userGroup.getMembers()) {
-            if (member instanceof User) {
-                visit((User) member);
-            } else if (member instanceof UserGroup) {
-                visit((UserGroup) member);
-            }
+            member.accept(this);
         }
     }
 
-    /** Returns percentage of positive messages over total messages */
     public float getPositivePercentage() {
-        if (newsFeedCount == 0) {
+        if (uniqueTweets.size() == 0) {
             return 0;
         }
 
-        return ((float) positiveCount / newsFeedCount) * 100;
+        return ((float) positiveCount / uniqueTweets.size()) * 100;
     }
 
-    /** 
-     * Adds the number of messages for a user to the count, and gets the number of positive messages
-     * within those.
-     */
     private void visitNewsFeed(List<String> newsFeed) {
-        newsFeedCount += newsFeed.size();
         for (String post : newsFeed) {
-            for (String positiveWord : POSITIVE_WORDS) {
-                if (post.toLowerCase().contains(positiveWord.toLowerCase())) {
-                    positiveCount++;
-                    break;
+            if (uniqueTweets.add(post)) {
+                newsFeedCount++;
+                for (String positiveWord : POSITIVE_WORDS) {
+                    if (post.toLowerCase().contains(positiveWord.toLowerCase())) {
+                        positiveCount++;
+                        break;
+                    }
                 }
             }
         }

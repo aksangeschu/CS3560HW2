@@ -11,6 +11,7 @@ public class UserGroup implements UserInterface {
     private String id;
     private String name;
     private List<UserInterface> members;
+    private long creationTime;
 
     /**
      * Generates a unique ID and sets the group's name.
@@ -19,6 +20,7 @@ public class UserGroup implements UserInterface {
         this.id = UUID.randomUUID().toString();
         this.name = name;
         this.members = new ArrayList<>();
+        this.creationTime = System.currentTimeMillis();
     }
 
     @Override
@@ -45,5 +47,9 @@ public class UserGroup implements UserInterface {
 
     public String getId() {
         return id;
+    }
+
+    public long getCreationTime() {
+        return creationTime;
     }
 }

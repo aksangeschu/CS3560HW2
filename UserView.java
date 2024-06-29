@@ -2,8 +2,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 /**
  * The User View includes a frame and panel that opens from the admin panel when selecting a user.
@@ -20,7 +20,8 @@ public class UserView extends JFrame {
 
     private JTextField followUserField;
     private JTextField tweetField;
-    private JButton closeButton;
+    private JLabel creationTimeLabel;
+    private JLabel lastUpdateTimeLabel;
 
     public UserView(User user, UserTreeModel treeModel) {
         this.user = user;
@@ -58,7 +59,7 @@ public class UserView extends JFrame {
         JScrollPane followingScrollPane = new JScrollPane(followingList);
 
         // Create a panel for the top section with labels
-        JPanel topPanel = new JPanel(new GridLayout(1, 2));
+        JPanel topPanel = new JPanel(new GridLayout(3, 2));
         JPanel followingPanel = new JPanel(new BorderLayout());
         followingPanel.add(new JLabel("Following:"), BorderLayout.NORTH);
         followingPanel.add(followingScrollPane, BorderLayout.CENTER);
@@ -69,7 +70,15 @@ public class UserView extends JFrame {
         tweetsPanel.add(feedScrollPane, BorderLayout.CENTER);
         topPanel.add(tweetsPanel);
 
-        JPanel controlPanel = new JPanel(new GridLayout(3, 1));
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+        creationTimeLabel = new JLabel("Creation Time: " + sdf.format(new Date(user.getCreationTime())));
+        lastUpdateTimeLabel = new JLabel("Last Update Time: " + sdf.format(new Date(user.getLastUpdateTime())));
+
+        topPanel.add(creationTimeLabel);
+        topPanel.add(lastUpdateTimeLabel);
+
+        JPanel controlPanel = new JPanel(new GridLayout(2, 1));
 
         JPanel followPanel = new JPanel(new FlowLayout());
         followUserField = new JTextField(15);
@@ -97,17 +106,8 @@ public class UserView extends JFrame {
         tweetPanel.add(tweetField);
         tweetPanel.add(tweetButton);
 
-        closeButton = new JButton("Close");
-        closeButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                dispose();
-            }
-        });
-
         controlPanel.add(followPanel);
         controlPanel.add(tweetPanel);
-        controlPanel.add(closeButton);
 
         mainPanel.add(topPanel, BorderLayout.CENTER);
         mainPanel.add(controlPanel, BorderLayout.SOUTH);
@@ -163,6 +163,7 @@ public class UserView extends JFrame {
             user.postTweet(formattedTweet);
             updateFeed();
             JOptionPane.showMessageDialog(this, "Tweet posted", "Success", JOptionPane.INFORMATION_MESSAGE);
+            updateLastUpdateTime();
         } else {
             JOptionPane.showMessageDialog(this, "Tweet cannot be empty", "Error", JOptionPane.ERROR_MESSAGE);
         }
@@ -181,5 +182,10 @@ public class UserView extends JFrame {
         for (User followedUser : user.getFollowings()) {
             followingModel.addElement(followedUser.getName());
         }
+    }
+
+    private void updateLastUpdateTime() {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        lastUpdateTimeLabel.setText("Last Update Time: " + sdf.format(new Date(user.getLastUpdateTime())));
     }
 }
